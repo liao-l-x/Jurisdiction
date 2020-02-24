@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.llx.studio.dao.MenuDao">
+
+    <select id="countMenu" resultType="Integer">
+        SELECT count(0)
+        FROM sys_menu u
+        WHERE u.del_flag = 0
+        AND menu_type != 2
+    </select>
+
+    <insert id="addMenu" useGeneratedKeys="true" keyProperty="menuId">
+        INSERT INTO sys_menu
+        (`menu_superior`, `menu_order`, `menu_name`,
+          `menu_URL`, `meun_img`, `menu_type`, `create_time`, `create_person`,`del_flag`, `remark`)
+        VALUES
+         (#{menuSuperior}, #{menuOrder}, #{menuName}, #{menuURL}, #{meunImg}, #{menuType}, #{createTime}, #{createPerson},
+          0, #{remark});
+    </insert>
+
+    <update id="updataMenu">
+        UPDATE sys_menu
+        <set>
+            <if test="menuSuperior != null and menuSuperior != ''">menu_superior = #{menuSuperior},</if>
+            <if test="menuOrder != null and menuOrder != ''">menu_order = #{menuOrder},</if>
+            <if test="menuName != null and menuName != ''">menu_name = #{menuName},</if>
+            <if test="menuURL != null and menuURL != ''">menu_URL = #{menuURL},</if>
+            <if test="meunImg != null and meunImg != ''">meun_img = #{meunImg},</if>
+            <if test="menuType != null and menuType != ''">menu_type = #{menuType},</if>
+            <if test="updatePerson != null and updatePerson != ''">update_person = #{updatePerson},</if>
+            last_modifide = #{lastModifide}
+        </set>
+        WHERE menu_id = #{menuId}
+    </update>
+
+    <select id="listMenu" resultType="com.alibaba.fastjson.JSONObject">
+/*`create_time`, `create_person`, `last_modifide`, `remark`, `update_person`*/
+        select
+          `menu_id`, `menu_superior`, `menu_order`, `menu_name`, `menu_URL`, `meun_img`,`menu_type`,remark
+        from sys_menu
+        WHERE del_flag = 0
+        AND menu_type != 2
+    </select>
+
+    <select id="oneMenu" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        `menu_superior`, `menu_order`, `menu_name`, `menu_URL`, `meun_img`,
+        `menu_type`, `create_time`, `create_person`, `last_modifide`, `remark`, `update_person`
+        from sys_menu
+        WHERE menu_id = #{menuId}
+        AND del_flag = 0
+    </select>
+
+    <select id="listRoleMenu" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        m.menu_superior, m.menu_order, m.menu_name, m.menu_URL, m.meun_img,
+        m.menu_type, m.create_time, m.create_person, m.last_modifide, m.remark, m.update_person
+        from sys_menu as m ,sys_role_menu as rm
+        WHERE rm.menu_id = m.menu_id
+        AND rm.role_id = #{roelId}
+        AND m.del_flag = 0
+        AND rm.type = 0
+    </select>
+
+    <select id="listUserMennu" resultType="com.alibaba.fastjson.JSONObject">
+        select
+          m.menu_superior, m.menu_order, m.menu_name, m.menu_URL, m.meun_img,
+          m.menu_type, m.create_time, m.create_person, m.last_modifide, m.remark, m.update_person
+        from sys_menu as m ,sys_role_menu as rm ,sys_user_role as ur
+        WHERE rm.menu_id = m.menu_id
+        AND ur.role_id = rm.role_id
+        AND ur.user_id = #{userId}
+        AND m.del_flag = 0
+        AND m.menu_type != 2
+        AND m.del_flag == 0
+        AND rm.type == 0
+    </select>
+
+    <update id="delMenu">
+        UPDATE sys_menu
+        <set>
+            del_flag = 2,
+            update_person = #{updatePerson},
+            last_modifide = #{lastModifide}
+        </set>
+        WHERE menu_id = #{menuId}
+    </update>
+
+    <insert id="addRoleMenu" useGeneratedKeys="true" keyProperty="roleId">
+        INSERT  INTO sys_role_menu
+        (`role_id`, `menu_id`, `create_time`, `create_person`)
+        VALUES
+        (#{roleId},#{menuId},#{createTime},#{createPerson});
+    </insert>
+
+    <delete id="delRoleMenu">
+        DELETE FROM sys_role_menu
+        WHERE menu_id = #{menuId}
+        AND  role_id = #{roleId}
+    </delete>
+
+    <select id="isNotRoleMenu" resultType="Integer">
+        SELECT count(0)
+        FROM sys_role_menu
+        WHERE  menu_id = #{menuId}
+        AND role_id = #{roleId}
+    </select>
+
+    <select id="isNotMenuName" resultType="Integer">
+        SELECT count(0)
+        FROM sys_menu
+        WHERE  menu_name = #{menuName}
+    </select>
+
+    <select id="isNotMenuId" resultType="Integer">
+        SELECT count(0)
+        FROM sys_menu
+        WHERE  menu_id = #{menuId}
+    </select>
+
+    <select id="isLeafMenu" resultType="Integer">
+        SELECT count(0)
+        FROM sys_menu
+        WHERE  menu_superior = #{menuId}
+    </select>
+
+    <select id="isMenuSuperior" resultType="Integer">
+        SELECT menu_superior
+        FROM sys_menu
+        WHERE  menu_id = #{menuId}
+    </select>
+
+    <select id="RoleMenuId" resultType="com.alibaba.fastjson.JSONObject">
+        select m.menu_id
+        from sys_menu as m ,sys_role_menu as rm
+        WHERE rm.menu_id = m.menu_id
+        AND rm.role_id = #{roelId}
+        AND m.del_flag = 0
+        AND rm.type = 0
+    </select>
+
+
+    <select id="listMennuButton" resultType="com.alibaba.fastjson.JSONObject">
+        /*`create_time`, `create_person`, `last_modifide`, `remark`, `update_person`*/
+        select
+        `menu_id`, `menu_superior`, `menu_order`, `menu_name`, `menu_URL`, `meun_img`,`menu_type`,remark
+        from sys_menu
+        WHERE del_flag = 0
+        AND menu_superior = #{menuSuperior}
+        AND menu_type = 2
+    </select>
+
+    <select id="URLmenuId" resultType="com.alibaba.fastjson.JSONObject">
+        select
+          menu_id
+        from sys_menu
+        WHERE menu_URL = #{URL}
+        AND del_flag = 0
+    </select>
+
+</mapper>

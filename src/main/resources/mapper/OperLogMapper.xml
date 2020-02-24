@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.llx.studio.dao.OperLogDao">
+
+    <select id="countOperLog" resultType="Integer">
+        SELECT count(0)
+        FROM sys_oper_log
+    </select>
+
+    <insert id="addOperLog"  useGeneratedKeys="true" keyProperty="operId">
+      INSERT INTO sys_oper_log
+       (`oper_description`, `oper_method`,
+        `oper_name`, `oper_url`, `oper_ip`, `oper_param`, `oper_status`, `error_msg`, `oper_time`)
+      VALUES
+        (#{operDescription}, #{oper_method}, #{operName}, #{operUrl}, INET_ATON(#{operIp}), #{operParam}, #{operStatus}, #{errorMsg},
+         #{operTime});
+    </insert>
+
+    <select id="listOperLog"  resultType="com.alibaba.fastjson.JSONObject">
+      SELECT
+        `oper_id`, `oper_description`, `oper_method`,
+        `oper_name`, `oper_url`, `oper_ip`, `oper_param`, `oper_status`, `error_msg`, `oper_time`
+      FROM sys_oper_log
+      LIMIT #{offSet}, #{pageRow}
+    </select>
+
+</mapper>

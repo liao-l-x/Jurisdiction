@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.llx.studio.dao.UserDao">
+
+    <select id="countUser" resultType="Integer">
+        SELECT count(0)
+        FROM sys_user u
+        WHERE u.del_flag = 0
+    </select>
+
+    <select id="queryExistUsername" resultType="int">
+        select count(0)
+        from sys_user
+        WHERE user_name=#{username}
+        AND del_flag= 0;
+    </select>
+
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="userId">
+       INSERT  INTO sys_user
+       (user_name, user_passwd, user_encryption,user_phone)
+       VALUES
+       (#{userName},#{userPasswd},#{userEncryption},#{userPhone});
+    </insert>
+
+    <update id="updataUser">
+      UPDATE sys_user
+     <set>
+         <if test="userFullName != null and userFullName != ''">user_full_name = #{userFullName},</if>
+         <if test="userMail != null and userMail != ''">user_mail = #{userMail},</if>
+         <if test="userGender != null and userGender != ''">user_gender = #{userGender},</if>
+         <if test="userSchool != null and userSchool != ''">user_school = #{userSchool},</if>
+         <if test="userSchoolLocation != null and userSchoolLocation != ''">user_school_location = #{userSchoolLocation},</if>
+         <if test="userSchoolIdentity != null and userSchoolIdentity != ''">user_school_identity = #{userSchoolIdentity},</if>
+         <if test="userSchoolStudentId != null and userSchoolStudentId != ''">user_school_student_id = #{userSchoolStudentId},</if>
+         <if test="userAdder != null and userAdder != ''">user_adder = #{userAdder},</if>
+         <if test="userIntroduce != null and userIntroduce != ''">user_introduce = #{userIntroduce},</if>
+         last_modifide = #{lastModifide}
+     </set>
+      WHERE user_id = #{userId}
+    </update>
+
+    <update id="DelUser">
+        UPDATE sys_user
+        <set>
+            del_flag = 2,
+            last_modifide = #{lastModifide}
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="listUser" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        `user_id`, `user_name`, `user_passwd`, `user_type`,
+        `user_state`, `user_last_ip`, `user_last_time`, `user_full_name`, `user_mail`,
+        `user_phone`, `user_gender`, `user_head`, `user_school`, `user_school_location`,
+        `user_school_identity`, `user_school_student_id`, `user_adder`, `user_introduce`,
+        `create_time`, `create_person`, `last_modifide`, `del_flag`, `remark`, `update_person`
+        from sys_user
+        WHERE del_flag = 0
+        LIMIT #{offSet}, #{pageRow}
+    </select>
+
+    <select id="oneUser" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        `user_id`, `user_name`, `user_passwd`, `user_type`,
+        `user_state`, `user_last_ip`, `user_last_time`, `user_full_name`, `user_mail`,
+        `user_phone`, `user_gender`, `user_head`, `user_school`, `user_school_location`,
+        `user_school_identity`, `user_school_student_id`, `user_adder`, `user_introduce`,
+        `create_time`, `create_person`, `last_modifide`, `del_flag`, `remark`, `update_person`
+        from sys_user
+        WHERE user_id = #{userId}
+        AND del_flag = 0
+    </select>
+</mapper>
